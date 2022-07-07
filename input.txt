@@ -1,0 +1,1 @@
+projection Cat1.sid,Cat2.sid (Cat1 |x| Cat1.pid = Cat2.pid and Cat1.cost>Cat2.cost Cat2)
