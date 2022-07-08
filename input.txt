@@ -1,1 +1,84 @@
-projection Cat1.sid,Cat2.sid (Cat1 |x| Cat1.pid = Cat2.pid and Cat1.cost>Cat2.cost Cat2)
+
+-- Linhas com esse prefixo nao sao lidas
+
+-- TABLE
+
+
+
+-- BASE
+
+
+
+-- (Part)
+
+
+
+-- Projection
+
+
+
+-- projection sid (Part)
+
+-- projection sid, colour, age (Part)
+
+
+
+-- Selection
+
+
+
+-- projection sid (selection colour='red' (Part))
+
+-- projection sid (selection (colour = 'red') and (age = (12 + 12) or age = 24)  (Part))
+
+
+
+-- JOIN
+
+
+-- projection sid (selection colour='red' (Part) |x| selection cost < 100 (Catalog) =|x| (Supplier) |x|= (Image) =|x|= Details) 
+
+
+-- Union
+
+
+
+
+-- projection sid (selection colour='red' (Part) |x| selection cost<100 (Catalog) |x| Supplier) 
+
+-- U 
+
+-- projection sid (selection colour='green' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+
+
+
+-- Intersection
+
+
+
+-- projection sid (selection colour='red' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+
+-- ∩ 
+
+-- projection sid (selection colour='green' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+
+
+
+-- Difference
+
+
+
+-- projection sid (selection colour='red' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+
+-- \ 
+
+-- projection sid (selection colour='green' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+
+
+
+-- Product
+
+
+
+-- projection sid (Part) X (Catalog) X (Supplier)
+

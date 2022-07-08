@@ -24,7 +24,7 @@
     }
 
     char *add_two_str(char * left_param, char * rigth_param) {
-      char *file_content = malloc(sizeof(left_param) + sizeof(rigth_param)*2);
+      char *file_content = malloc(sizeof(left_param)*153 + sizeof(rigth_param)*2);
 
       sprintf(file_content,"%s%s", left_param, rigth_param);
 
@@ -32,7 +32,7 @@
     }
 
     char *add_three_str(char * left_param, char * midle_param, char * rigth_param) {
-      char *file_content = malloc(sizeof(left_param)*33 + sizeof(midle_param) + sizeof(rigth_param));
+      char *file_content = malloc(sizeof(left_param)*153 + sizeof(midle_param) + sizeof(rigth_param));
 
       sprintf(file_content,"%s%s%s", left_param, midle_param, rigth_param);
 
@@ -44,13 +44,14 @@
 	char *p_string;
 	int   yint;
 }
-%start agebra
+%start start
 %token <p_string> IDENTIFIER
 %token <p_string> STRING
 %token <p_string> NUMERIC
-%token <p_string> AND OR
+%token <p_string> AND OR NOT
 %token <p_string> UNION DIFFERENCE INTERCECTION PRODUCT
 %token <p_string> JOIN LEFT_JOIN RIGTH_JOIN OUTER_JOIN
+%token <p_string> ADD SUB MUL DIV MOD EXP ANDB ORB XORB NOTB LFT RGT
 %token PROJECTION SELECTION 
 %token LB RB COMMA GTEQ LTEQ EQ GT LT DF
 %type <p_string> condition
@@ -60,12 +61,17 @@
 %type <p_string> set
 
 %%
-agebra: query
+start: 
+| agebra
+;
+
+agebra : query
 | agebra set { write("%s\n", $2); } agebra
 | LB { write("(\n", ""); } agebra RB { write(")\n", ""); }
 ;
 
-query : projection { write("FROM ", ""); } tables_from where
+query : projection { write("FROM ", ""); } tables_from where { where = "";}
+| { write("SELECT *\nFROM ", ""); } tables_from where { where = "";}
 ;
 
 projection : PROJECTION { write("SELECT %s\n", ""); } identifiers
@@ -75,41 +81,34 @@ identifiers : IDENTIFIER { write("  %s\n", $1); }
 | IDENTIFIER { write("  %s,\n", $1); } COMMA identifiers
 ;
 
-tables_from : IDENTIFIER { write("%s\n", $1); }
+tables_from : IDENTIFIER { write("%s\n", $1); } joins
 | LB tables_from RB joins
-| LB conditions RB joins
-| conditions
+| tables_from { write(", ", ""); } PRODUCT tables_from
+| conditions tables_from
 ;
 
 joins : 
-| type_join { write("%s", $1); } SELECTION condition tables { write(" %s\n", add_two_str(" ON ", $4)); }
-| type_join { write("%s", $1); } tables
+| type_join { write("%s", $1); } tables_join
 | type_join { write("%s (\n", $1); } projection { write("FROM ", ""); } tables_from { write(")\n", ""); }
 ;
 
 type_join : JOIN { $$ = "INNER JOIN "; }
 | LEFT_JOIN { $$ = "LEFT JOIN "; }
 | RIGTH_JOIN { $$ = "RIGTH JOIN "; }
-| OUTER_JOIN { $$ = "OUTER JOIN "; }
+| OUTER_JOIN { $$ = "FULL OUTER JOIN "; }
 ;
 
-tables: LB tables_from RB joins
-| tables_join
-| LB conditions RB joins
-| conditions
+tables_join : IDENTIFIER { write("%s\n", $1); } joins
+| LB tables_join RB joins
+| conditions tables_join
+| LB tables_join RB PRODUCT tables_join
 ;
-
-tables_join : IDENTIFIER { write("%s\n", $1); }
-| LB IDENTIFIER RB { write("%s\n", $2); } joins
-;
-/* projection col1 ( (selection (colour <= 22) (Part) |x| Catalog) |x| ((selection (colour <= 22) (Supplier))) |x| tabela  ) */
-
 
 conditions : SELECTION condition { 
   if (where == "") where = $2;
   else where = add_three_str(where, " AND ", $2);
 }
- LB tables_from RB joins
+| LB conditions RB tables_join
 ;
 
 condition : exp
@@ -117,17 +116,17 @@ condition : exp
 | condition operator condition { $$ = add_three_str($1, $2, $3); }
 ;
 
-operator: AND  { $$ = " AND "; }
+operator : AND  { $$ = " AND "; }
 | OR { $$ = " OR "; }
+| NOT { $$ = " NOT "; }
 ;
 
-set: UNION { $$ = "\n\nUNION\n\n"; }
-| DIFFERENCE { $$ = "\n\nDIFFERENCE\n\n"; }
+set : UNION { $$ = "\n\nUNION\n\n"; }
+| DIFFERENCE { $$ = "\n\nEXCEPT\n\n"; }
 | INTERCECTION { $$ = "\n\nINTERCECTION\n\n"; }
-| PRODUCT { $$ = "\n\nPRODUCT\n\n"; }
 ;
 
-where: { write("WHERE\n %s\n", where); }
+where : { if (where != "") { write("WHERE\n %s\n", where); } }
 ;
 
 exp : { $$ = ""; }
@@ -140,14 +139,19 @@ exp : { $$ = ""; }
 | exp EQ exp { $$ = add_three_str($1, " = ", $3); }
 | exp DF exp { $$ = add_three_str($1, " != ", $3); }
 | exp GT exp { $$ = add_three_str($1, " > ", $3); }
+| exp ADD exp { $$ = add_three_str($1, " + ", $3); }
+| exp SUB exp { $$ = add_three_str($1, " - ", $3); }
+| exp MUL exp { $$ = add_three_str($1, " * ", $3); }
+| exp DIV exp { $$ = add_three_str($1, " / ", $3); }
+| exp MOD exp { $$ = add_three_str($1, " % ", $3); }
+| exp EXP exp { $$ = add_three_str($1, " ^ ", $3); }
+| exp ANDB exp { $$ = add_three_str($1, " & ", $3); }
+| exp ORB exp { $$ = add_three_str($1, " | ", $3); }
+| exp XORB exp { $$ = add_three_str($1, " # ", $3); }
+| exp NOTB exp { $$ = add_three_str($1, " ~ ", $3); }
+| exp LFT exp { $$ = add_three_str($1, " << ", $3); }
+| exp RGT exp { $$ = add_three_str($1, " >> ", $3); }
 | LB exp RB { $$ = add_three_str("( ", $2, " )"); }
-/*
-| exp '+' exp
-| exp '-' exp
-| exp '*' exp
-| exp '/' exp
-| exp '^' exp
-*/
 ;
 %%
 

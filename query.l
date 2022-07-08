@@ -5,27 +5,45 @@
 %}
 %option yylineno
 
-ALL_DIGITS [\nA-Za-z0-9!#$%&'()*+,-./:;?@[\\\]_`{|}~  ]*
+OPEN_COMMENT "--"
+
+ALL_DIGITS [><!=∩A-Za-z0-9!#$%&'()*+,-./:;?@[\\\]_`{|}~ ]*
+
+COMMENT {OPEN_COMMENT}{ALL_DIGITS}
+
 IDENTIFIER [A-Za-z][A-Za-z0-9_\.]+
+
 NUMBER [0-9]+
 
-COMMENT --{ALL_DIGITS}
-
 UNION "U"
-DIFFERENCE "-"
+DIFFERENCE "\\"
 INTERCECTION "∩"
-PRODUCT "x"
+PRODUCT "X"
 
 AND "and"
 OR "or"
+NOT "not"
 
 COMMA ","
 GTEQ ">="
 LTEQ "<="
 LT "<"
 EQ "="
-DF "!="
+DF "!="|"<>"
 GT ">"
+
+ADD "+"
+SUB "-"
+MUL "*"
+DIV "/"
+MOD "%"
+EXP "^"
+ANDB "&"
+ORB "|"
+XORB "#"
+NOTB "~"
+LFT "<<"
+RGT ">>"
 
 STRING '{ALL_DIGITS}'
 NUMERIC {NUMBER}
@@ -40,16 +58,18 @@ OUTER_JOIN "=|x|="
 
 %%
 
+{COMMENT}      { /* ignoring comments */ }
+{UNION}        { return UNION; }
+{PRODUCT}      { return PRODUCT; }
+{DIFFERENCE}   { return DIFFERENCE; }
+{INTERCECTION} { return INTERCECTION; }
 {PROJECTION}   { return PROJECTION; }
 {SELECTION}    { return SELECTION; }
 {AND}          { return AND; }
 {OR}           { return OR; }
-{UNION}        { return UNION; }
-{DIFFERENCE}   { return DIFFERENCE; }
-{INTERCECTION} { return INTERCECTION; }
-{PRODUCT}      { return PRODUCT; }
-{IDENTIFIER}   { /*printf("aaahh %s\n", yytext);*/ yylval.p_string=malloc(yyleng); sprintf(yylval.p_string,"%s",yytext); return IDENTIFIER;}
-{STRING}       { /*printf("STRING %s\n", yytext);*/ yylval.p_string=malloc(yyleng); sprintf(yylval.p_string,"%s",yytext);return STRING; }
+{NOT}          { return NOT; }
+{IDENTIFIER}   { yylval.p_string=malloc(yyleng); sprintf(yylval.p_string,"%s",yytext); return IDENTIFIER;}
+{STRING}       { yylval.p_string=malloc(yyleng); sprintf(yylval.p_string,"%s",yytext);return STRING; }
 {OUTER_JOIN}   { return OUTER_JOIN; }
 {LEFT_JOIN}    { return LEFT_JOIN; }
 {RIGTH_JOIN}   { return RIGTH_JOIN; }
@@ -61,9 +81,20 @@ OUTER_JOIN "=|x|="
 {LT}           { return LT; }
 {EQ}           { return EQ; }
 {DF}           { return DF; }
-{GT}           { return GT; }
+{GT}           { printf("aaahh %s\n", yytext); return GT; }
+{ADD}          { return ADD; }
+{SUB}          { return SUB; }
+{MUL}          { return MUL; }
+{DIV}          { return DIV; }
+{MOD}          { return MOD; }
+{EXP}          { return EXP; }
+{ANDB}         { return ANDB; }
+{ORB}          { return ORB; }
+{XORB}         { return XORB; }
+{NOTB}         { return NOTB; }
+{LFT}          { return LFT; }
+{RGT}          { return RGT; }
 {COMMA}        { return COMMA; }
-{COMMENT}      { /* ignoring comments */ }
 {NUMERIC}      { yylval.p_string=malloc(yyleng); sprintf(yylval.p_string,"%s",yytext); return NUMERIC; }
 [\n\t ]+       { /* ignoring newlines, tabs and spaces */ }
 
