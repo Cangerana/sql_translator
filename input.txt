@@ -29,14 +29,14 @@
 
 -- projection sid (selection colour='red' (Part))
 
--- projection sid (selection (colour = 'red') and (age = (12 + 12) or age = 24)  (Part))
+-- projection sid, colour, age (selection (colour = 'red') and (age = (12 + 12) or age = 24)  (Part))
 
 
 
 -- JOIN
 
 
--- projection sid (selection colour='red' (Part) |x| selection cost < 100 (Catalog) =|x| (Supplier) |x|= (Image) =|x|= Details) 
+-- projection sid (selection colour='red' (Part) |x| cost < 100 (Catalog) =|x| tb1.fk = tb2.id (Supplier) |x|= tb1.fk = tb2.id (Image) =|x|= tb1.fk = tb2.id Details) 
 
 
 -- Union
@@ -44,23 +44,22 @@
 
 
 
--- projection sid (selection colour='red' (Part) |x| selection cost<100 (Catalog) |x| Supplier) 
+-- projection sid (selection colour='red' (Part) |x| cost<100 (Catalog) |x| tb1.fk = tb2.id Supplier) 
 
 -- U 
 
--- projection sid (selection colour='green' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
-
+-- projection sid (selection colour='green' (Part) |x| cost<100 (Catalog) |x| tb1.fk = tb2.id Supplier)
 
 
 -- Intersection
 
 
 
--- projection sid (selection colour='red' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+--- projection sid (selection colour='red' (Part) |x| cost<100 (Catalog) |x| tb1.fk = tb2.id Supplier)
 
--- ∩ 
+ -- ∩ 
 
--- projection sid (selection colour='green' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+ -- projection sid (selection colour='green' (Part) |x| cost<100 (Catalog) |x| tb1.fk = tb2.id Supplier)
 
 
 
@@ -68,11 +67,11 @@
 
 
 
--- projection sid (selection colour='red' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+-- projection sid (selection colour='red' (Part) |x| cost<100 (Catalog) |x| tb1.fk = tb2.id Supplier)
 
 -- \ 
 
--- projection sid (selection colour='green' (Part) |x| selection cost<100 (Catalog) |x| Supplier)
+-- projection sid (selection colour='green' (Part) |x| cost<100 (Catalog) |x| tb1.fk = tb2.id Supplier)
 
 
 

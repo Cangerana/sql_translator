@@ -7,18 +7,6 @@
     int yylex();
     char *where = "";
 
-    int is_equal(char *p1,char *p2){
-      return strcmp(p1, p2) == 0;
-    }
-
-    char *element_name(char *value){
-      if(is_equal(value,"escreva"))
-        return "printf";
-      if(is_equal(value,"inicio"))
-        return "main";
-      return value;
-    }
-
     void write(char *p1, char *p2) {
       fprintf(output_query, p1, p2);
     }
@@ -100,8 +88,13 @@ type_join : JOIN { $$ = "INNER JOIN "; }
 
 tables_join : IDENTIFIER { write("%s\n", $1); } joins
 | LB tables_join RB joins
-| conditions tables_join
+/* | conditions tables_join */
+| condition { write("ON %s\n", $1); } table joins
 | LB tables_join RB PRODUCT tables_join
+;
+
+table : IDENTIFIER { write("%s\n", $1); }
+| LB IDENTIFIER RB { write("%s\n", $2); } joins
 ;
 
 conditions : SELECTION condition { 
